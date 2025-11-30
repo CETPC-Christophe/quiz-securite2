@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM CACES – 12. La fin de poste</title>
+<style>
+  :root {
+    --orange: #ff6600;
+    --noir: #222;
+    --gris: #f3f3f3;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--gris);
+    color: var(--noir);
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  #intro, #quiz {
+    width: 100%;
+    display: none; /* shown via JS */
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .banner {
+    background: var(--noir);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+  h1 {
+    color: var(--orange);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #555;
+    margin-bottom: 25px;
+  }
+  .question {
+    background: white;
+    padding: 16px;
+    margin: 8px auto;
+    border-left: 8px solid var(--orange);
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 820px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  .question p {
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .answers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .answers label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 8px 0;
+    cursor: pointer;
+    width: 100%;
+    max-width: 520px;
+    text-align: center;
+  }
+  button {
+    background: var(--orange);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 6px;
+  }
+  button:hover { background: #e65c00; }
+  .result {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 25px;
+  }
+  .correct { color: green; }
+  .incorrect { color: red; }
+  .footer {
+    text-align: center;
+    color: #777;
+    margin-top: 30px;
+    font-size: 0.9rem;
+  }
+  .controls { margin-top: 6px; }
+  .controls button { margin: 4px 6px; }
+  @media (max-width: 600px) {
+    .question { padding: 14px; max-width: 95%; }
+    .answers label { max-width: 100%; }
+    button { padding: 10px 16px; margin:8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">🚧 Formation CACES – 12. La fin de poste 🚜</div>
+<h1>QCM – La fin de poste</h1>
+<p class="subtitle">Répondez à 10 questions tirées au hasard sur la fin de poste</p>
+
+<div id="intro">
+  <div class="question">
+    <p><b>Bienvenue</b></p>
+    <p>Merci d'indiquer le nom du candidat avant de commencer :</p>
+    <input type="text" id="candidateName" placeholder="Nom du candidat" style="padding:8px; width:80%; max-width:320px; border-radius:6px; border:1px solid #ccc;">
+    <div style="margin-top:12px; text-align:center;">
+      <button id="startBtn" onclick="startQuiz()" disabled>➡️ Suivant</button>
+    </div>
+  </div>
+</div>
+
+<div id="quiz"></div>
+
+<div style="text-align:center;">
+  <button id="nextBtn" onclick="nextQuestion()" disabled style="display:none;">➡️ Suivant</button>
+  <button id="restartBtn" onclick="restartQuiz()" style="display:none;">🔁 Rejouer</button>
+  <button id="sendBtn" onclick="sendResults()" style="display:none;">📤 Envoyer</button>
+  <button id="downloadBtn" onclick="downloadResults()" style="display:none;">⬇️ Télécharger résultats</button>
+  <div id="saveStatus" style="margin-top:8px; color:#444; font-size:0.9rem;"></div>
+</div>
+
+<p id="result" class="result"></p>
+<p class="footer">© Formation Sécurité CACES – Quiz interactif</p>
+
+<script>
+// --- Questions issues du fichier "12. La fin de poste" ---
+const allQuestions = [
+  {text:"Le nettoyage de l'engin fait partie des opérations de fin de poste.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Le conducteur doit garer l'engin sur une zone en pente pour le stationner.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Le stationnement de l'engin doit se faire sur un sol stable et plan.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Il n'est pas nécessaire d'abaisser les accessoires de travail avant d'arrêter l'engin.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Avant de quitter l'engin, le conducteur doit couper le contact et retirer la clé.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Le plein de carburant doit être réalisé moteur allumé pour gagner du temps.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Les vérifications de fuite d'huile ou de carburant peuvent être effectuées à chaud.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Les niveaux (huile, carburant, liquide de refroidissement) doivent être vérifiés à la fin de chaque poste.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Le graissage des articulations fait partie des opérations de maintenance de fin de poste.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Le nettoyage du poste de conduite est facultatif.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Les anomalies constatées doivent être signalées à la hiérarchie.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Le carnet de maintenance n'a pas besoin d'être mis à jour quotidiennement.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Le moteur doit être arrêté avant tout entretien ou graissage.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Les flexibles hydrauliques peuvent être manipulés même sous pression.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Le conducteur doit signaler tout bruit ou comportement anormal de l'engin.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Les équipements de protection individuelle peuvent être rangés à la fin du poste.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Le nettoyage de l'engin permet de détecter d'éventuelles anomalies.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Les clés peuvent être laissées sur le contact si le site est sécurisé.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Les freins doivent être desserrés avant le stationnement.", answers:["Vrai","Faux"], correct:"Faux"},
+  {text:"Le remplissage du réservoir de carburant doit se faire dans un endroit ventilé.", answers:["Vrai","Faux"], correct:"Vrai"}
+];
+
+// --- Configuration endpoint ---
+// URL de déploiement Google Apps Script pour envoyer les résultats
+const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxkmBp2IFWUNdSd09WHI8rXSyDk4l65vY3vUxGdOw03-MftHFYEFHDhdmOMujUU989cGw/exec';
+
+// --- Sélection aléatoire de 10 questions ---
+function getRandomQuestions(num) {
+  const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, num);
+}
+
+let selectedQuestions = [];
+let currentIndex = 0;
+let userAnswers = [];
+let candidateName = '';
+
+// --- Afficher écran d'accueil ---
+function showIntro() {
+  document.getElementById('intro').style.display = 'flex';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('restartBtn').style.display = 'none';
+  document.getElementById('sendBtn').style.display = 'none';
+  document.getElementById('downloadBtn').style.display = 'none';
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('saveStatus').innerHTML = '';
+  const nameInput = document.getElementById('candidateName');
+  const startBtn = document.getElementById('startBtn');
+  nameInput.value = '';
+  startBtn.disabled = true;
+  nameInput.addEventListener('input', () => {
+    startBtn.disabled = nameInput.value.trim() === '';
+  });
+}
+
+function startQuiz() {
+  const nameInput = document.getElementById('candidateName');
+  candidateName = nameInput.value.trim();
+  if (!candidateName) return;
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'flex';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  document.getElementById('restartBtn').style.display = 'none';
+  document.getElementById('sendBtn').style.display = 'none';
+  document.getElementById('downloadBtn').style.display = 'none';
+
+  // initialiser le quiz
+  selectedQuestions = getRandomQuestions(10);
+  currentIndex = 0;
+  userAnswers = new Array(selectedQuestions.length);
+  renderQuestion();
+
+  // Empêcher le retour arrière via l'historique
+  try {
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function () {
+      history.pushState(null, null, location.href);
+    });
+  } catch (e) {
+    // Certaines pages locales peuvent restreindre pushState; ignorer en cas d'erreur
+  }
+}
+
+function renderQuestion() {
+  const quizContainer = document.getElementById("quiz");
+  const q = selectedQuestions[currentIndex];
+  const options = q.answers.map(a => 
+    `<label><input type="radio" name="q" value="${a}"> ${a}</label>`
+  ).join("");
+  quizContainer.innerHTML = `
+    <div class="question">
+      <p>⚙️ <b>Question ${currentIndex+1} :</b> ${q.text}</p>
+      <div class="answers">${options}</div>
+    </div>`;
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  nextBtn.textContent = (currentIndex === selectedQuestions.length - 1) ? "🏁 Terminer" : "➡️ Suivant";
+  const radios = quizContainer.querySelectorAll('input[name="q"]');
+  radios.forEach(r => r.addEventListener('change', () => {
+    nextBtn.disabled = false;
+  }));
+}
+
+function nextQuestion() {
+  const selected = document.querySelector('input[name="q"]:checked');
+  if (!selected) return;
+  userAnswers[currentIndex] = selected.value;
+  if (currentIndex < selectedQuestions.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  let score = 0;
+  selectedQuestions.forEach((q, i) => {
+    if (userAnswers[i] === q.correct) score++;
+  });
+  document.getElementById("quiz").innerHTML = `
+    <div class="question">
+      <p>🏷️ Candidat : <b>${candidateName}</b></p>
+      <p>🏁 Résultat : <span style="color:var(--orange);">${score}</span> / ${selectedQuestions.length}</p>
+    </div>`;
+  document.getElementById('quiz').style.display = 'flex';
+  document.getElementById("nextBtn").disabled = true;
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('restartBtn').style.display = 'inline-block';
+  // afficher les boutons d'envoi/téléchargement
+  const sendBtn = document.getElementById('sendBtn');
+  if (sendBtn) sendBtn.style.display = 'inline-block';
+  const downloadBtn = document.getElementById('downloadBtn');
+  if (downloadBtn) downloadBtn.style.display = 'inline-block';
+  try { history.replaceState(null, null, location.href); } catch (e) {}
+}
+
+function restartQuiz() { showIntro(); }
+
+// --- Résultats: construction et envoi ---
+function buildResultObject() {
+  const now = new Date();
+  let score = 0;
+  const details = selectedQuestions.map((q, i) => {
+    const given = userAnswers[i] || '';
+    if (given === q.correct) score++;
+    return { question: q.text, given: given, correct: q.correct };
+  });
+  return {
+    timestamp: now.toISOString(),
+    candidate: candidateName,
+    score: score,
+    total: selectedQuestions.length,
+    details: details
+  };
+}
+
+function sendResults() {
+  const payload = buildResultObject();
+  const statusEl = document.getElementById('saveStatus');
+  if (!RESULTS_ENDPOINT) {
+    statusEl.textContent = 'Aucun endpoint configuré — configurez RESULTS_ENDPOINT dans le fichier.';
+    return;
+  }
+  statusEl.textContent = 'Envoi en cours...';
+  fetch(RESULTS_ENDPOINT, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(r => {
+    statusEl.textContent = 'Envoi réussi ✔️';
+  }).catch(err => {
+    statusEl.textContent = 'Erreur envoi: ' + err.message;
+  });
+}
+
+function downloadResults() {
+  const data = buildResultObject();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `resultats_${candidateName || 'candidat'}_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// --- Initialisation ---
+showIntro();
+</script>
+</body>
+</html>
