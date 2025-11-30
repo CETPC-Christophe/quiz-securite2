@@ -201,12 +201,10 @@ function startQuiz() {
   document.getElementById('nextBtn').style.display = 'inline-block';
   document.getElementById('restartBtn').style.display = 'none';
 
-  // Tirage aléatoire de 2 questions
   selectedQuestions = getRandomQuestions(2);
   currentIndex = 0;
   userAnswers = new Array(selectedQuestions.length);
 
-  // Mettre à jour le texte dynamique
   document.getElementById('quizSubtitle').textContent =
     `Répondez à ${selectedQuestions.length} questions tirées au hasard sur la fin de poste`;
 
@@ -253,24 +251,34 @@ function nextQuestion() {
   }
 }
 
+// 🔹 Affichage du message de vérification + envoi + affichage résultats après réussite
 function showResults() {
-  let score = 0;
-  selectedQuestions.forEach((q, i) => {
-    if (userAnswers[i] === q.correct) score++;
-  });
-  document.getElementById("quiz").innerHTML = `
+  const quizContainer = document.getElementById("quiz");
+  quizContainer.innerHTML = `
     <div class="question">
-      <p>🏷️ Candidat : <b>${candidateName}</b></p>
-      <p>🏁 Résultat : <span style="color:var(--orange);">${score}</span> / ${selectedQuestions.length}</p>
+      <p>⚙️ Vérification de vos réponses...</p>
     </div>`;
-  document.getElementById('quiz').style.display = 'flex';
-  document.getElementById("nextBtn").disabled = true;
-  document.getElementById('nextBtn').style.display = 'none';
-  document.getElementById('restartBtn').style.display = 'inline-block';
-  try { history.replaceState(null, null, location.href); } catch (e) {}
+  document.getElementById("nextBtn").style.display = 'none';
+  document.getElementById('restartBtn').style.display = 'none';
 
-  // Envoi automatique des résultats
-  sendResults();
+  sendResults().then(() => {
+    let score = 0;
+    selectedQuestions.forEach((q, i) => {
+      if (userAnswers[i] === q.correct) score++;
+    });
+    quizContainer.innerHTML = `
+      <div class="question">
+        <p>🏷️ Candidat : <b>${candidateName}</b></p>
+        <p>🏁 Résultat : <span style="color:var(--orange);">${score}</span> / ${selectedQuestions.length}</p>
+      </div>`;
+    document.getElementById('restartBtn').style.display = 'inline-block';
+  }).catch(err => {
+    quizContainer.innerHTML = `
+      <div class="question">
+        <p>❌ Erreur lors de l'envoi des résultats. Veuillez réessayer.</p>
+      </div>`;
+    document.getElementById('restartBtn').style.display = 'inline-block';
+  });
 }
 
 function restartQuiz() { showIntro(); }
@@ -292,23 +300,27 @@ function buildResultObject() {
   };
 }
 
+// 🔹 sendResults retourne une Promise pour gérer l'affichage après réussite
 function sendResults() {
   const payload = buildResultObject();
   const statusEl = document.getElementById('saveStatus');
   if (!RESULTS_ENDPOINT) {
-    statusEl.textContent = 'Aucun endpoint configuré — configurez RESULTS_ENDPOINT dans le fichier.';
-    return;
+    statusEl.textContent = 'Aucun endpoint configuré.';
+    return Promise.reject(new Error('Aucun endpoint configuré'));
   }
+
   statusEl.textContent = 'Envoi en cours...';
-  fetch(RESULTS_ENDPOINT, {
+  
+  return fetch(RESULTS_ENDPOINT, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).then(r => {
+  }).then(() => {
     statusEl.textContent = 'Envoi réussi ✔️';
   }).catch(err => {
     statusEl.textContent = 'Erreur envoi: ' + err.message;
+    return Promise.reject(err);
   });
 }
 
