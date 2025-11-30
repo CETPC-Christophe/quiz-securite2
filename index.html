@@ -133,8 +133,7 @@
 
 <div style="text-align:center;">
   <button id="nextBtn" onclick="nextQuestion()" disabled style="display:none;">➡️ Suivant</button>
-  <button id="restartBtn" onclick="restartQuiz()" style="display:none;">🔁 Rejouer</button>
-  <button id="downloadBtn" onclick="downloadResults()" style="display:none;">⬇️ Télécharger résultats</button>
+  <button id="restartBtn" onclick="restartQuiz()" style="display:none;">🔄 Nouvelle évaluation</button>
   <div id="saveStatus" style="margin-top:8px; color:#444; font-size:0.9rem;"></div>
 </div>
 
@@ -182,7 +181,6 @@ function showIntro() {
   document.getElementById('quiz').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'none';
   document.getElementById('restartBtn').style.display = 'none';
-  document.getElementById('downloadBtn').style.display = 'none';
   document.getElementById('result').innerHTML = '';
   document.getElementById('saveStatus').innerHTML = '';
   const nameInput = document.getElementById('candidateName');
@@ -202,7 +200,6 @@ function startQuiz() {
   document.getElementById('quiz').style.display = 'flex';
   document.getElementById('nextBtn').style.display = 'inline-block';
   document.getElementById('restartBtn').style.display = 'none';
-  document.getElementById('downloadBtn').style.display = 'none';
 
   // Tirage aléatoire de 2 questions
   selectedQuestions = getRandomQuestions(2);
@@ -270,11 +267,9 @@ function showResults() {
   document.getElementById("nextBtn").disabled = true;
   document.getElementById('nextBtn').style.display = 'none';
   document.getElementById('restartBtn').style.display = 'inline-block';
-  const downloadBtn = document.getElementById('downloadBtn');
-  if (downloadBtn) downloadBtn.style.display = 'inline-block';
   try { history.replaceState(null, null, location.href); } catch (e) {}
 
-  // 🔹 Envoi automatique des résultats
+  // Envoi automatique des résultats
   sendResults();
 }
 
@@ -315,19 +310,6 @@ function sendResults() {
   }).catch(err => {
     statusEl.textContent = 'Erreur envoi: ' + err.message;
   });
-}
-
-function downloadResults() {
-  const data = buildResultObject();
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `resultats_${candidateName || 'candidat'}_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
 }
 
 showIntro();
