@@ -30,12 +30,6 @@
     padding: 20px;
     box-sizing: border-box;
   }
-  .container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
   .banner {
     background: var(--noir);
     color: white;
@@ -105,16 +99,12 @@
     font-weight: bold;
     margin-top: 25px;
   }
-  .correct { color: green; }
-  .incorrect { color: red; }
   .footer {
     text-align: center;
     color: #777;
     margin-top: 30px;
     font-size: 0.9rem;
   }
-  .controls { margin-top: 6px; }
-  .controls button { margin: 4px 6px; }
   @media (max-width: 600px) {
     .question { padding: 14px; max-width: 95%; }
     .answers label { max-width: 100%; }
@@ -144,7 +134,6 @@
 <div style="text-align:center;">
   <button id="nextBtn" onclick="nextQuestion()" disabled style="display:none;">➡️ Suivant</button>
   <button id="restartBtn" onclick="restartQuiz()" style="display:none;">🔁 Rejouer</button>
-  <button id="sendBtn" onclick="sendResults()" style="display:none;">📤 Envoyer</button>
   <button id="downloadBtn" onclick="downloadResults()" style="display:none;">⬇️ Télécharger résultats</button>
   <div id="saveStatus" style="margin-top:8px; color:#444; font-size:0.9rem;"></div>
 </div>
@@ -193,7 +182,6 @@ function showIntro() {
   document.getElementById('quiz').style.display = 'none';
   document.getElementById('nextBtn').style.display = 'none';
   document.getElementById('restartBtn').style.display = 'none';
-  document.getElementById('sendBtn').style.display = 'none';
   document.getElementById('downloadBtn').style.display = 'none';
   document.getElementById('result').innerHTML = '';
   document.getElementById('saveStatus').innerHTML = '';
@@ -214,7 +202,6 @@ function startQuiz() {
   document.getElementById('quiz').style.display = 'flex';
   document.getElementById('nextBtn').style.display = 'inline-block';
   document.getElementById('restartBtn').style.display = 'none';
-  document.getElementById('sendBtn').style.display = 'none';
   document.getElementById('downloadBtn').style.display = 'none';
 
   // Tirage aléatoire de 2 questions
@@ -283,11 +270,12 @@ function showResults() {
   document.getElementById("nextBtn").disabled = true;
   document.getElementById('nextBtn').style.display = 'none';
   document.getElementById('restartBtn').style.display = 'inline-block';
-  const sendBtn = document.getElementById('sendBtn');
-  if (sendBtn) sendBtn.style.display = 'inline-block';
   const downloadBtn = document.getElementById('downloadBtn');
   if (downloadBtn) downloadBtn.style.display = 'inline-block';
   try { history.replaceState(null, null, location.href); } catch (e) {}
+
+  // 🔹 Envoi automatique des résultats
+  sendResults();
 }
 
 function restartQuiz() { showIntro(); }
