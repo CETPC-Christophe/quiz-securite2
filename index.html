@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QCM CACES – 12. La fin de poste</title>
+<title>QCM CACES – La fin de poste</title>
 <style>
   :root {
     --orange: #ff6600;
@@ -114,7 +114,7 @@
 </head>
 <body>
 
-<div class="banner">🚧 Formation CACES – 12. La fin de poste 🚜</div>
+<div class="banner">🚧 Formation CACES – La fin de poste 🚜</div>
 <h1>QCM – La fin de poste</h1>
 <p class="subtitle" id="quizSubtitle">Répondez aux questions tirées au hasard sur la fin de poste</p>
 
@@ -141,6 +141,9 @@
 <p class="footer">© Formation Sécurité CACES – Quiz interactif</p>
 
 <script>
+const QUIZ_NAME = "La fin de poste"; // Nom du quiz pour Google Sheets
+const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwP6EkASzl44Qh8uLieWcyqflqmMnSsP1qsfisNSJgh9pjAYE08qm0-zi5fg-w8F_cRRQ/exec';
+
 const allQuestions = [
   {text:"Le nettoyage de l'engin fait partie des opérations de fin de poste.", answers:["Vrai","Faux"], correct:"Vrai"},
   {text:"Le conducteur doit garer l'engin sur une zone en pente pour le stationner.", answers:["Vrai","Faux"], correct:"Faux"},
@@ -164,33 +167,6 @@ const allQuestions = [
   {text:"Le remplissage du réservoir de carburant doit se faire dans un endroit ventilé.", answers:["Vrai","Faux"], correct:"Vrai"}
 ];
 
-const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwP6EkASzl44Qh8uLieWcyqflqmMnSsP1qsfisNSJgh9pjAYE08qm0-zi5fg-w8F_cRRQ/exec';
-
-function getRandomQuestions(num) {
-  // Charger les questions déjà posées
-  let used = JSON.parse(localStorage.getItem("usedQuestions") || "[]");
-
-  // Filtrer uniquement les questions non utilisées
-  let available = allQuestions.filter(q => !used.includes(q.text));
-
-  // Si pas assez de questions → on réinitialise le cycle
-  if (available.length < num) {
-    used = [];
-    available = [...allQuestions];
-  }
-
-  // Tirage aléatoire
-  available.sort(() => Math.random() - 0.5);
-  const selected = available.slice(0, num);
-
-  // Mise à jour des questions déjà utilisées
-  selected.forEach(q => used.push(q.text));
-  localStorage.setItem("usedQuestions", JSON.stringify(used));
-
-  return selected;
-}
-
-
 let selectedQuestions = [];
 let currentIndex = 0;
 let userAnswers = [];
@@ -208,6 +184,19 @@ function formatDateTime(isoString) {
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
+// 🔹 Tirage aléatoire des questions
+function getRandomQuestions(num) {
+  let used = JSON.parse(localStorage.getItem("usedQuestions") || "[]");
+  let available = allQuestions.filter(q => !used.includes(q.text));
+  if (available.length < num) { used = []; available = [...allQuestions]; }
+  available.sort(() => Math.random() - 0.5);
+  const selected = available.slice(0, num);
+  selected.forEach(q => used.push(q.text));
+  localStorage.setItem("usedQuestions", JSON.stringify(used));
+  return selected;
+}
+
+// 🔹 Affichage de l'écran d'accueil
 function showIntro() {
   document.getElementById('intro').style.display = 'flex';
   document.getElementById('quiz').style.display = 'none';
@@ -219,104 +208,46 @@ function showIntro() {
   const startBtn = document.getElementById('startBtn');
   nameInput.value = '';
   startBtn.disabled = true;
-  nameInput.addEventListener('input', () => {
-    startBtn.disabled = nameInput.value.trim() === '';
-  });
+  nameInput.addEventListener('input', () => { startBtn.disabled = nameInput.value.trim() === ''; });
 }
 
+// 🔹 Démarrage du quiz
 function startQuiz() {
-  const nameInput = document.getElementById('candidateName');
-  candidateName = nameInput.value.trim();
+  candidateName = document.getElementById('candidateName').value.trim();
   if (!candidateName) return;
   document.getElementById('intro').style.display = 'none';
   document.getElementById('quiz').style.display = 'flex';
   document.getElementById('nextBtn').style.display = 'inline-block';
   document.getElementById('restartBtn').style.display = 'none';
-
   selectedQuestions = getRandomQuestions(2);
   currentIndex = 0;
   userAnswers = new Array(selectedQuestions.length);
-
-  document.getElementById('quizSubtitle').textContent =
-    `Répondez à ${selectedQuestions.length} questions tirées au hasard sur la fin de poste`;
-
+  document.getElementById('quizSubtitle').textContent = `Répondez à ${selectedQuestions.length} questions tirées au hasard sur la fin de poste`;
   renderQuestion();
-
-  try {
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', function () {
-      history.pushState(null, null, location.href);
-    });
-  } catch (e) {}
+  try { history.pushState(null, null, location.href); window.addEventListener('popstate', () => history.pushState(null, null, location.href)); } catch (e) {}
 }
 
+// 🔹 Affichage d'une question
 function renderQuestion() {
-  const quizContainer = document.getElementById("quiz");
   const q = selectedQuestions[currentIndex];
-  const options = q.answers.map(a => 
-    `<label><input type="radio" name="q" value="${a}"> ${a}</label>`
-  ).join("");
-  quizContainer.innerHTML = `
-    <div class="question">
-      <p>⚙️ <b>Question ${currentIndex+1} :</b> ${q.text}</p>
-      <div class="answers">${options}</div>
-    </div>`;
-
+  const options = q.answers.map(a => `<label><input type="radio" name="q" value="${a}"> ${a}</label>`).join("");
+  document.getElementById("quiz").innerHTML = `<div class="question"><p>⚙️ <b>Question ${currentIndex+1} :</b> ${q.text}</p><div class="answers">${options}</div></div>`;
   const nextBtn = document.getElementById("nextBtn");
   nextBtn.disabled = true;
   nextBtn.textContent = (currentIndex === selectedQuestions.length - 1) ? "🏁 Terminer" : "➡️ Suivant";
-  const radios = quizContainer.querySelectorAll('input[name="q"]');
-  radios.forEach(r => r.addEventListener('change', () => {
-    nextBtn.disabled = false;
-  }));
+  document.querySelectorAll('input[name="q"]').forEach(r => r.addEventListener('change', () => { nextBtn.disabled = false; }));
 }
 
+// 🔹 Passage à la question suivante
 function nextQuestion() {
   const selected = document.querySelector('input[name="q"]:checked');
   if (!selected) return;
   userAnswers[currentIndex] = selected.value;
-  if (currentIndex < selectedQuestions.length - 1) {
-    currentIndex++;
-    renderQuestion();
-  } else {
-    showResults();
-  }
+  if (currentIndex < selectedQuestions.length - 1) { currentIndex++; renderQuestion(); } 
+  else { showResults(); }
 }
 
-// 🔹 Affichage du message de vérification + envoi + affichage résultats après réussite
-function showResults() {
-  const quizContainer = document.getElementById("quiz");
-  quizContainer.innerHTML = `
-    <div class="question">
-      <p>⚙️ Vérification de vos réponses...</p>
-    </div>`;
-  document.getElementById("nextBtn").style.display = 'none';
-  document.getElementById('restartBtn').style.display = 'none';
-
-  sendResults().then(() => {
-    let score = 0;
-    selectedQuestions.forEach((q, i) => {
-      if (userAnswers[i] === q.correct) score++;
-    });
-    const timestamp = formatDateTime(new Date().toISOString());
-    quizContainer.innerHTML = `
-      <div class="question">
-        <p>🏷️ Candidat : <b>${candidateName}</b></p>
-        <p>🏁 Résultat : <span style="color:var(--orange);">${score}</span> / ${selectedQuestions.length}</p>
-        <p>⏱️ Réalisé le : <b>${timestamp}</b></p>
-      </div>`;
-    document.getElementById('restartBtn').style.display = 'inline-block';
-  }).catch(err => {
-    quizContainer.innerHTML = `
-      <div class="question">
-        <p>❌ Erreur lors de l'envoi des résultats. Veuillez réessayer.</p>
-      </div>`;
-    document.getElementById('restartBtn').style.display = 'inline-block';
-  });
-}
-
-function restartQuiz() { showIntro(); }
-
+// 🔹 Construction de l'objet à envoyer
 function buildResultObject() {
   const now = new Date();
   let score = 0;
@@ -330,36 +261,52 @@ function buildResultObject() {
     candidate: candidateName,
     score: score,
     total: selectedQuestions.length,
-    details: details
+    details: details,
+    quiz: QUIZ_NAME // Nom du quiz pour Google Sheets
   };
 }
 
-// 🔹 sendResults retourne une Promise pour gérer l'affichage après réussite
+// 🔹 Envoi des résultats
 function sendResults() {
   const payload = buildResultObject();
   const statusEl = document.getElementById('saveStatus');
-  if (!RESULTS_ENDPOINT) {
-    statusEl.textContent = 'Aucun endpoint configuré.';
-    return Promise.reject(new Error('Aucun endpoint configuré'));
-  }
-
+  if (!RESULTS_ENDPOINT) { statusEl.textContent = 'Aucun endpoint configuré.'; return Promise.reject(new Error('Aucun endpoint configuré')); }
   statusEl.textContent = 'Envoi en cours...';
-  
   return fetch(RESULTS_ENDPOINT, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).then(() => {
-    statusEl.textContent = 'Envoi réussi ✔️';
+  }).then(() => { statusEl.textContent = 'Envoi réussi ✔️'; })
+    .catch(err => { statusEl.textContent = 'Erreur envoi: ' + err.message; return Promise.reject(err); });
+}
+
+// 🔹 Affichage des résultats
+function showResults() {
+  document.getElementById("quiz").innerHTML = `<div class="question"><p>⚙️ Vérification de vos réponses...</p></div>`;
+  document.getElementById("nextBtn").style.display = 'none';
+  document.getElementById('restartBtn').style.display = 'none';
+  sendResults().then(() => {
+    let score = 0;
+    selectedQuestions.forEach((q, i) => { if (userAnswers[i] === q.correct) score++; });
+    const timestamp = formatDateTime(new Date().toISOString());
+    document.getElementById("quiz").innerHTML = `<div class="question">
+      <p>🏷️ Candidat : <b>${candidateName}</b></p>
+      <p>🏁 Résultat : <span style="color:var(--orange);">${score}</span> / ${selectedQuestions.length}</p>
+      <p>⏱️ Réalisé le : <b>${timestamp}</b></p>
+    </div>`;
+    document.getElementById('restartBtn').style.display = 'inline-block';
   }).catch(err => {
-    statusEl.textContent = 'Erreur envoi: ' + err.message;
-    return Promise.reject(err);
+    document.getElementById("quiz").innerHTML = `<div class="question"><p>❌ Erreur lors de l'envoi des résultats. Veuillez réessayer.</p></div>`;
+    document.getElementById('restartBtn').style.display = 'inline-block';
   });
 }
 
+// 🔹 Recommencer le quiz
+function restartQuiz() { showIntro(); }
+
+// 🔹 Initialisation
 showIntro();
 </script>
 </body>
 </html>
-
