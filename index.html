@@ -323,16 +323,23 @@ function buildResultObject() {
   const details = selectedQuestions.map((q, i) => {
     const given = userAnswers[i] || '';
     if (given === q.correct) score++;
-    return { question: q.text, given: given, correct: q.correct };
+    return { 
+      question: q.text, 
+      given: given, 
+      correct: q.correct 
+    };
   });
+
   return {
     timestamp: now.toISOString(),
     candidate: candidateName,
+    quiz: "Nouveau quiz",   // 🔹 Nom exact de l’onglet dans Google Sheet
     score: score,
     total: selectedQuestions.length,
     details: details
   };
 }
+
 
 // 🔹 sendResults retourne une Promise pour gérer l'affichage après réussite
 function sendResults() {
@@ -362,6 +369,7 @@ showIntro();
 </script>
 </body>
 </html>
+
 
 
 
