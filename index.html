@@ -167,9 +167,29 @@ const allQuestions = [
 const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwP6EkASzl44Qh8uLieWcyqflqmMnSsP1qsfisNSJgh9pjAYE08qm0-zi5fg-w8F_cRRQ/exec';
 
 function getRandomQuestions(num) {
-  const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, num);
+  // Charger les questions déjà posées
+  let used = JSON.parse(localStorage.getItem("usedQuestions") || "[]");
+
+  // Filtrer uniquement les questions non utilisées
+  let available = allQuestions.filter(q => !used.includes(q.text));
+
+  // Si pas assez de questions → on réinitialise le cycle
+  if (available.length < num) {
+    used = [];
+    available = [...allQuestions];
+  }
+
+  // Tirage aléatoire
+  available.sort(() => Math.random() - 0.5);
+  const selected = available.slice(0, num);
+
+  // Mise à jour des questions déjà utilisées
+  selected.forEach(q => used.push(q.text));
+  localStorage.setItem("usedQuestions", JSON.stringify(used));
+
+  return selected;
 }
+
 
 let selectedQuestions = [];
 let currentIndex = 0;
@@ -342,4 +362,5 @@ showIntro();
 </script>
 </body>
 </html>
+
 
