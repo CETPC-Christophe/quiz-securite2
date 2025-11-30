@@ -23,7 +23,7 @@
   }
   #intro, #quiz {
     width: 100%;
-    display: none; /* shown via JS */
+    display: none; 
     align-items: center;
     justify-content: center;
     min-height: 60vh;
@@ -126,7 +126,7 @@
 
 <div class="banner">🚧 Formation CACES – 12. La fin de poste 🚜</div>
 <h1>QCM – La fin de poste</h1>
-<p class="subtitle">Répondez à 10 questions tirées au hasard sur la fin de poste</p>
+<p class="subtitle" id="quizSubtitle">Répondez aux questions tirées au hasard sur la fin de poste</p>
 
 <div id="intro">
   <div class="question">
@@ -153,7 +153,6 @@
 <p class="footer">© Formation Sécurité CACES – Quiz interactif</p>
 
 <script>
-// --- Questions issues du fichier "12. La fin de poste" ---
 const allQuestions = [
   {text:"Le nettoyage de l'engin fait partie des opérations de fin de poste.", answers:["Vrai","Faux"], correct:"Vrai"},
   {text:"Le conducteur doit garer l'engin sur une zone en pente pour le stationner.", answers:["Vrai","Faux"], correct:"Faux"},
@@ -177,11 +176,8 @@ const allQuestions = [
   {text:"Le remplissage du réservoir de carburant doit se faire dans un endroit ventilé.", answers:["Vrai","Faux"], correct:"Vrai"}
 ];
 
-// --- Configuration endpoint ---
-// URL de déploiement Google Apps Script pour envoyer les résultats
 const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxkmBp2IFWUNdSd09WHI8rXSyDk4l65vY3vUxGdOw03-MftHFYEFHDhdmOMujUU989cGw/exec';
 
-// --- Sélection aléatoire de 10 questions ---
 function getRandomQuestions(num) {
   const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, num);
@@ -192,7 +188,6 @@ let currentIndex = 0;
 let userAnswers = [];
 let candidateName = '';
 
-// --- Afficher écran d'accueil ---
 function showIntro() {
   document.getElementById('intro').style.display = 'flex';
   document.getElementById('quiz').style.display = 'none';
@@ -222,21 +217,23 @@ function startQuiz() {
   document.getElementById('sendBtn').style.display = 'none';
   document.getElementById('downloadBtn').style.display = 'none';
 
-  // initialiser le quiz
-  selectedQuestions = getRandomQuestions(10);
+  // Tirage aléatoire de 2 questions
+  selectedQuestions = getRandomQuestions(2);
   currentIndex = 0;
   userAnswers = new Array(selectedQuestions.length);
+
+  // Mettre à jour le texte dynamique
+  document.getElementById('quizSubtitle').textContent =
+    `Répondez à ${selectedQuestions.length} questions tirées au hasard sur la fin de poste`;
+
   renderQuestion();
 
-  // Empêcher le retour arrière via l'historique
   try {
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function () {
       history.pushState(null, null, location.href);
     });
-  } catch (e) {
-    // Certaines pages locales peuvent restreindre pushState; ignorer en cas d'erreur
-  }
+  } catch (e) {}
 }
 
 function renderQuestion() {
@@ -286,7 +283,6 @@ function showResults() {
   document.getElementById("nextBtn").disabled = true;
   document.getElementById('nextBtn').style.display = 'none';
   document.getElementById('restartBtn').style.display = 'inline-block';
-  // afficher les boutons d'envoi/téléchargement
   const sendBtn = document.getElementById('sendBtn');
   if (sendBtn) sendBtn.style.display = 'inline-block';
   const downloadBtn = document.getElementById('downloadBtn');
@@ -296,7 +292,6 @@ function showResults() {
 
 function restartQuiz() { showIntro(); }
 
-// --- Résultats: construction et envoi ---
 function buildResultObject() {
   const now = new Date();
   let score = 0;
@@ -347,7 +342,6 @@ function downloadResults() {
   URL.revokeObjectURL(url);
 }
 
-// --- Initialisation ---
 showIntro();
 </script>
 </body>
