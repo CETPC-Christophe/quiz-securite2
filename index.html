@@ -205,7 +205,7 @@ function renderQuestion(){
 
 /* ---------------------- RESULTATS ---------------------- */
 function showResults(){
-  document.getElementById("quiz").innerHTML = "<div class='question'>Envoi...</div>";
+  document.getElementById("quiz").innerHTML = "<div class='question'>⚙️ Vérification de vos réponses...</div>";
   sendResults().finally(()=>{
 
     const score = userAnswers.filter((v,i)=>v===selectedQuestions[i].correct).length;
@@ -233,7 +233,7 @@ function sendResults(){
     quiz: QUIZ_NAME
   };
 
-  document.getElementById("saveStatus").textContent = "⚙️ Vérification de vos réponses...";
+  document.getElementById("saveStatus").textContent = "";
 
   return fetch(RESULTS_ENDPOINT,{
     method:"POST",
@@ -250,4 +250,5 @@ function sendResults(){
 
 </body>
 </html>
+
 
