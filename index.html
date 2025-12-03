@@ -21,11 +21,22 @@
     box-sizing:border-box;
   }
 
-  .banner { background:var(--noir); color:#fff; padding:10px; border-radius:10px; text-align:center; font-weight:700; margin-bottom:15px; width:100%; max-width:820px; box-sizing:border-box; }
+  .banner {
+    background:var(--noir);
+    color:#fff;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:700;
+    margin-bottom:15px;
+    width:100%;
+    max-width:820px;
+    box-sizing:border-box;
+  }
+
   h1 { color:var(--orange); margin:8px 0; text-align:center; }
   .subtitle { color:#555; text-align:center; margin-bottom:18px; }
 
-  /* Card question */
   .question {
     background:#fff;
     padding:16px;
@@ -40,16 +51,27 @@
   }
   .question p { font-weight:600; margin:8px 0; }
 
-  /* Réponses (liste) */
-  .answers { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:6px; }
+  .answers {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    margin-top:6px;
+  }
   .answers label {
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    width:100%; max-width:520px; padding:8px 10px; border-radius:8px; cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    width:100%;
+    max-width:520px;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
     border:1px solid #eee;
   }
   .answers input[type="radio"] { transform:scale(1.05); }
 
-  /* Boutons */
   button {
     background:var(--orange);
     color:#fff;
@@ -73,76 +95,78 @@
 </head>
 <body>
 
-  <!-- Banniere + titre -->
-  <div class="banner" id="quizBanner">🚧 Les travaux de terrassement 🚜</div>
-  <h1>ÉVALUATION</h1>
-  <p class="subtitle" id="quizSubtitle">Répondez aux questions tirées au hasard</p>
+<!-- Banniere + titre -->
+<div class="banner" id="quizBanner">🚧 Les travaux de terrassement 🚜</div>
+<h1>ÉVALUATION</h1>
+<p class="subtitle" id="quizSubtitle">Répondez aux questions tirées au hasard</p>
 
-  <!-- Ecran d'accueil : saisie du nom -->
-  <div id="intro" style="width:100%; max-width:820px; display:flex; justify-content:center;">
-    <div class="question" style="text-align:center;">
-      <p><strong>Bienvenue</strong></p>
-      <p>Merci d'indiquer votre nom (pas le prénom) avant de commencer :</p>
-      <input id="candidateName" type="text" placeholder="Nom de l'élève"
-             style="padding:8px; width:80%; max-width:320px; border-radius:6px; border:1px solid #ccc;">
-      <div style="margin-top:12px;">
-        <button id="startBtn" disabled>➡️ Suivant</button>
-      </div>
+<!-- Écran d'accueil : saisie du nom -->
+<div id="intro" style="width:100%; max-width:820px; display:flex; justify-content:center;">
+  <div class="question" style="text-align:center;">
+    <p><strong>Bienvenue</strong></p>
+    <p>Merci d'indiquer votre nom (pas le prénom) avant de commencer :</p>
+    <input id="candidateName" type="text" placeholder="Nom de l'élève"
+           style="padding:8px; width:80%; max-width:320px; border-radius:6px; border:1px solid #ccc;">
+    <div style="margin-top:12px;">
+      <button id="startBtn" disabled>➡️ Suivant</button>
     </div>
   </div>
+</div>
 
-  <!-- Conteneur des questions rendu dynamiquement -->
-  <div id="quiz" style="width:100%; max-width:820px; min-height:220px; display:none; align-items:center; justify-content:center;"></div>
+<!-- Conteneur des questions rendu dynamiquement -->
+<div id="quiz" style="width:100%; max-width:820px; min-height:220px; display:none; align-items:center; justify-content:center;"></div>
 
-  <!-- Zone d'état et bouton 'nouvelle évaluation' -->
-  <div style="width:100%; max-width:820px; text-align:center; margin-top:12px;">
-    <button id="restartBtn" style="display:none;">🔄 Nouvelle évaluation</button>
-    <div id="saveStatus" style="margin-top:8px; color:#444; font-size:0.95rem;"></div>
-  </div>
+<!-- Zone d'état et bouton 'nouvelle évaluation' -->
+<div style="width:100%; max-width:820px; text-align:center; margin-top:12px;">
+  <button id="restartBtn" style="display:none;">🔄 Nouvelle évaluation</button>
+  <div id="saveStatus" style="margin-top:8px; color:#444; font-size:0.95rem;"></div>
+</div>
 
-  <p id="result" style="text-align:center; font-weight:700; margin-top:14px;"></p>
-  <p class="footer">© Formation Sécurité CACES® R482A – Quiz interactif</p>
+<p id="result" style="text-align:center; font-weight:700; margin-top:14px;"></p>
+<p class="footer">© Formation Sécurité CACES® R482A – Quiz interactif</p>
 
 <script>
-/* ============================
-   CONFIG
-   ============================ */
-
-/* Nom visible du quiz */
+/* ============================ */
+/*         CONFIG              */
+/* ============================ */
 const QUIZ_NAME = "Les travaux de terrassement";
-
-/* URL Google Apps Script (fourni) */
 const RESULTS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzSnnlxH2dCzkVqobrQX-E4n4lo-WcxoDvmLHr7cLn35d4xploO_K3p9tNuY0OweRsW/exec";
 
-/* ============================
-   QUESTIONS (source)
-   - tableau d'objets { text, answers[], correct }
-   - on peut facilement modifier / ajouter des questions
-   ============================ */
+/* ============================ */
+/*         QUESTIONS            */
+/* ============================ */
 const allQuestions = [
-  {"text":"Le conducteur travaille en sous-cavage","answers":["Vrai","Faux"],"correct":"Vrai",
-   "image": "https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"},
-  {"text":"Dans cette situation, il peut y avoir ensevelissement de l'engin","answers":["Vrai","Faux"],"correct":"Vrai",
-   "image": "https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"},
-    {"text":"Le conducteur travaille en situation de cavage","answers":["Vrai","Faux"],"correct":"Faux",
-   "image": "https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png" },
- ];
+  {
+    "text":"Le conducteur travaille en sous-cavage",
+    "answers":["Vrai","Faux"],
+    "correct":"Vrai",
+    "image":"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
+  },
+  {
+    "text":"Dans cette situation, il peut y avoir ensevelissement de l'engin",
+    "answers":["Vrai","Faux"],
+    "correct":"Vrai",
+    "image":"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
+  },
+  {
+    "text":"Le conducteur travaille en situation de cavage",
+    "answers":["Vrai","Faux"],
+    "correct":"Faux",
+    "image":"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
+  }
+];
 
-/* ============================
-   Variables d'état
-   ============================ */
+/* ============================ */
+/*         VARIABLES D'ÉTAT     */
+/* ============================ */
 let selectedQuestions = [];
 let currentIndex = 0;
 let userAnswers = [];
 let candidateName = "";
 
-/* ============================
-   Utilitaires
-   ============================ */
-
-/**
- * formate une date ISO en "JJ/MM/AAAA HH:MM:SS"
- */
+/* ============================ */
+/*         UTILITAIRES          */
+/* ============================ */
 function formatDateTime(isoString) {
   const date = new Date(isoString);
   const d = String(date.getDate()).padStart(2,'0');
@@ -154,21 +178,10 @@ function formatDateTime(isoString) {
   return `${d}/${m}/${y} ${hh}:${min}:${sec}`;
 }
 
-/**
- * Renvoie N questions aléatoires en évitant celles déjà sorties récemment
- * (stockées dans localStorage sous "usedQuestions").
- */
 function getRandomQuestions(num) {
   let used = JSON.parse(localStorage.getItem("usedQuestions") || "[]");
   let available = allQuestions.filter(q => !used.includes(q.text));
-
-  // si plus assez d'items disponibles, on réinitialise la mémoire
-  if (available.length < num) {
-    used = [];
-    available = [...allQuestions];
-  }
-
-  // shuffle rapide et slice
+  if (available.length < num) { used=[]; available=[...allQuestions]; }
   available.sort(() => Math.random() - 0.5);
   const selected = available.slice(0, num);
   selected.forEach(q => used.push(q.text));
@@ -176,14 +189,9 @@ function getRandomQuestions(num) {
   return selected;
 }
 
-/* ============================
-   Affichage et navigation
-   ============================ */
-
-/**
- * Affiche l'écran d'intro (saisie du nom)
- * NOTE: on utilise .oninput pour ne pas empiler plusieurs event listeners
- */
+/* ============================ */
+/*     AFFICHAGE ET NAVIGATION  */
+/* ============================ */
 function showIntro() {
   document.getElementById('intro').style.display = 'flex';
   document.getElementById('quiz').style.display = 'none';
@@ -194,64 +202,41 @@ function showIntro() {
   const nameInput = document.getElementById('candidateName');
   const startBtn = document.getElementById('startBtn');
 
-  // reset valeur et bouton
   nameInput.value = "";
   startBtn.disabled = true;
 
-  // affecte un seul handler (pas addEventListener multiple fois)
-  nameInput.oninput = () => {
-    startBtn.disabled = nameInput.value.trim() === "";
-  };
+  nameInput.oninput = () => { startBtn.disabled = nameInput.value.trim() === ""; };
 }
 
-/**
- * Démarre le quiz
- */
 function startQuiz() {
   candidateName = document.getElementById('candidateName').value.trim();
   if (!candidateName) return;
 
-  // préparer interface
   document.getElementById('intro').style.display = 'none';
   document.getElementById('quiz').style.display = 'flex';
   document.getElementById('restartBtn').style.display = 'none';
   document.getElementById('saveStatus').textContent = '';
 
-  // tirer les questions, réinitialiser l'état
-  selectedQuestions = getRandomQuestions(2);
+  selectedQuestions = getRandomQuestions(3);
   currentIndex = 0;
   userAnswers = new Array(selectedQuestions.length).fill("");
 
-  // mettre à jour le sous-titre
   document.getElementById('quizSubtitle').textContent = `Répondez à ${selectedQuestions.length} questions tirées au hasard`;
-
-  // afficher première question
   renderQuestion();
-
-  // protéger contre retour arrière simple (optionnel)
-  try {
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', () => history.pushState(null, null, location.href));
-  } catch(e) { /* ignore */ }
 }
 
-/**
- * Affiche la question courante avec le bouton interne "Suivant/Terminer"
- * Le bouton est rendu dans la carte et activé seulement après sélection.
- */
 function renderQuestion() {
   const q = selectedQuestions[currentIndex];
 
-  // construire les options (radio)
+  // Construire le HTML des réponses
   const optionsHtml = q.answers.map((a, idx) => {
     const inputId = `q${currentIndex}_opt${idx}`;
     return `<label for="${inputId}">
-              <input id="${inputId}" type="radio" name="q" value="${a}">
-              ${a}
+              <input id="${inputId}" type="radio" name="q" value="${a}"> ${a}
             </label>`;
   }).join("");
 
-  // injecter le HTML
+  // Affichage question + image
   document.getElementById('quiz').innerHTML = `
     <div class="question">
       ${q.image ? `<img src="${q.image}" alt="Illustration question" style="max-width:100%; height:auto; margin-bottom:10px; border-radius:6px;">` : ''}
@@ -267,12 +252,12 @@ function renderQuestion() {
 
   const nextBtn = document.getElementById('nextBtnInternal');
 
-  // activer le bouton après sélection
+  // Activer le bouton après sélection
   document.querySelectorAll('input[name="q"]').forEach(radio => {
     radio.addEventListener('change', () => { nextBtn.disabled = false; });
   });
 
-  // gérer le clic du bouton directement
+  // Clic sur le bouton : enregistrer la réponse et passer à la suite
   nextBtn.addEventListener('click', () => {
     const selected = document.querySelector('input[name="q"]:checked');
     if (!selected) return;
@@ -281,142 +266,72 @@ function renderQuestion() {
 
     if (currentIndex < selectedQuestions.length - 1) {
       currentIndex++;
-      renderQuestion(); // passer à la question suivante
+      renderQuestion();
     } else {
-      showResults(); // fin du quiz
+      showResults();
     }
   });
 }
-/**
- * Fonction appelée quand l'utilisateur clique sur le bouton 'Suivant' interne.
- * Elle enregistre la réponse et navigue (ou termine).
- */
-function nextQuestion() {
-  const selection = document.querySelector('input[name="q"]:checked');
-  if (!selection) return; // sécurité
 
-  // enregistrer la réponse
-  userAnswers[currentIndex] = selection.value;
-
-  // si on n'est pas à la dernière question, avancer
-  if (currentIndex < selectedQuestions.length - 1) {
-    currentIndex++;
-    renderQuestion();
-    return;
-  }
-
-  // sinon, fin du quiz : afficher résultats et envoyer au sheet
-  showResults();
-}
-
-/* ============================
-   Envoi des résultats (Google Sheets)
-   ============================ */
-
-/**
- * Construit l'objet qui sera envoyé au serveur (Apps Script)
- */
+/* ============================ */
+/*        AFFICHAGE RESULTATS    */
+/* ============================ */
 function buildResultObject() {
   const now = new Date();
   let score = 0;
-  const details = selectedQuestions.map((q, i) => {
+  const details = selectedQuestions.map((q,i) => {
     const given = userAnswers[i] || "";
-    if (given === q.correct) score++;
-    return { question: q.text, given: given, correct: q.correct };
+    if(given === q.correct) score++;
+    return { question:q.text, given, correct:q.correct };
   });
-
-  return {
-    timestamp: now.toISOString(),
-    candidate: candidateName,
-    score: score,
-    total: selectedQuestions.length,
-    details: details,
-    quiz: QUIZ_NAME
-  };
+  return { timestamp: now.toISOString(), candidate:candidateName, score, total:selectedQuestions.length, details, quiz:QUIZ_NAME };
 }
 
-/**
- * Envoie les résultats vers l'endpoint Google Apps Script.
- * NOTE: mode 'no-cors' utilisé pour compatibilité côté Apps Script (si besoin on peut améliorer).
- */
 function sendResults() {
   const payload = buildResultObject();
   const statusEl = document.getElementById('saveStatus');
-
-  if (!RESULTS_ENDPOINT) {
-    statusEl.textContent = "Aucun endpoint configuré.";
-    return Promise.reject(new Error("Aucun endpoint configuré"));
-  }
+  if (!RESULTS_ENDPOINT) { statusEl.textContent="Aucun endpoint configuré."; return; }
 
   statusEl.textContent = "Envoi en cours...";
-
-  return fetch(RESULTS_ENDPOINT, {
-    method: "POST",
-    mode: "no-cors", // garde ceci si ton Apps Script ne gère pas CORS
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-  .then(() => {
-    // En mode no-cors, on ne peut pas lire la réponse ; on suppose que c'est OK
-    statusEl.textContent = "Envoi réussi ✔️";
-  })
-  .catch(err => {
-    statusEl.textContent = "Erreur envoi: " + err.message;
-    return Promise.reject(err);
-  });
+  fetch(RESULTS_ENDPOINT, {
+    method:"POST", mode:"no-cors",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(()=>{ statusEl.textContent="Envoi réussi ✔️"; })
+    .catch(err=>{ statusEl.textContent="Erreur: "+err.message; });
 }
 
-/* ============================
-   Affichage final des résultats
-   ============================ */
 function showResults() {
-  // état de vérification
   document.getElementById('quiz').innerHTML = `<div class="question"><p>⚙️ Vérification de vos réponses...</p></div>`;
   document.getElementById('saveStatus').textContent = '';
+  sendResults();
+  const score = userAnswers.filter((a,i)=>a===selectedQuestions[i].correct).length;
+  const timestamp = formatDateTime(new Date().toISOString());
 
-  // envoyer puis afficher le score (même si no-cors)
-  sendResults().then(() => {
-    const score = userAnswers.filter((ans, i) => ans === selectedQuestions[i].correct).length;
-    const timestamp = formatDateTime(new Date().toISOString());
-
-    document.getElementById('quiz').innerHTML = `
-      <div class="question">
-        <p>🏷️ Candidat : <strong>${candidateName}</strong></p>
-        <p>🏁 Résultat : <span style="color:var(--orange); font-weight:700;">${score}</span> / ${selectedQuestions.length}</p>
-        <p>⏱️ Réalisé le : <strong>${timestamp}</strong></p>
-      </div>
-    `;
-    document.getElementById('restartBtn').style.display = 'inline-block';
-  })
-  .catch((/*err*/) => {
-    // en cas d'erreur d'envoi on affiche le message d'erreur et on propose de revenir
-    document.getElementById('quiz').innerHTML = `<div class="question"><p>❌ Erreur lors de l'envoi des résultats. Veuillez réessayer.</p></div>`;
-    document.getElementById('restartBtn').style.display = 'inline-block';
-  });
+  document.getElementById('quiz').innerHTML = `
+    <div class="question">
+      <p>🏷️ Candidat : <strong>${candidateName}</strong></p>
+      <p>🏁 Résultat : <span style="color:var(--orange); font-weight:700;">${score}</span> / ${selectedQuestions.length}</p>
+      <p>⏱️ Réalisé le : <strong>${timestamp}</strong></p>
+    </div>
+  `;
+  document.getElementById('restartBtn').style.display='inline-block';
 }
 
-/* ============================
-   Redémarrer / Initialisation
-   ============================ */
-function restartQuiz() {
-  showIntro();
-}
+/* ============================ */
+/*        REDÉMARRER            */
+/* ============================ */
+function restartQuiz() { showIntro(); }
 
-/* Initialisation des handlers qui ne doivent être attachés qu'une fois */
+/* ============================ */
+/*      INITIALISATION          */
+/* ============================ */
 document.addEventListener('DOMContentLoaded', () => {
-  // bannière
   document.getElementById('quizBanner').textContent = `🚧 ${QUIZ_NAME} 🚜`;
-
-  // bouton démarrer
   document.getElementById('startBtn').addEventListener('click', startQuiz);
-
-  // bouton recommencer
   document.getElementById('restartBtn').addEventListener('click', restartQuiz);
-
-  // afficher écran d'accueil
   showIntro();
 });
 </script>
 </body>
 </html>
-
