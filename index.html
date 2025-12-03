@@ -145,11 +145,12 @@ const QUIZ_NAME = "La fin de poste"; // Nom du quiz pour Google Sheets
 const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwP6EkASzl44Qh8uLieWcyqflqmMnSsP1qsfisNSJgh9pjAYE08qm0-zi5fg-w8F_cRRQ/exec';
 
 const allQuestions = [
-  {text:"Le nettoyage de l'engin fait partie des opérations de fin de poste.", answers:["Vrai","Faux"], correct:"Vrai"},
+  {text:"Le nettoyage de l'engin fait partie des opérations de fin de poste.", answers:["Vrai","Faux"], correct:"Vrai",
+  image: "https://raw.githubusercontent.com/CETPC-Christophe/quiz-securite2/main/images/Souscavage.png"
+  },
   {text:"Le conducteur doit garer l'engin sur une zone en pente pour le stationner.", answers:["Vrai","Faux"], correct:"Faux"},
   {text:"Le stationnement de l'engin doit se faire sur un sol stable et plan.", answers:["Vrai","Faux"], correct:"Vrai"},
-  
-];
+  ];
 
 let selectedQuestions = [];
 let currentIndex = 0;
@@ -294,5 +295,6 @@ showIntro();
 </script>
 </body>
 </html>
+
 
 
