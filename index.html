@@ -233,7 +233,7 @@ function sendResults(){
     quiz: QUIZ_NAME
   };
 
-  document.getElementById("saveStatus").textContent = "Envoi en cours...";
+  document.getElementById("saveStatus").textContent = "⚙️ Vérification de vos réponses...";
 
   return fetch(RESULTS_ENDPOINT,{
     method:"POST",
@@ -250,3 +250,4 @@ function sendResults(){
 
 </body>
 </html>
+
