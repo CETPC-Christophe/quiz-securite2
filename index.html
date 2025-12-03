@@ -1,200 +1,270 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>QCM CACES – Les travaux de terrassement</title>
-
 <style>
-:root { --orange:#ff6600; --noir:#222; --gris:#f3f3f3; }
+  /* ---------- Thème & layout ---------- */
+  :root { --orange:#ff6600; --noir:#222; --gris:#f3f3f3; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--gris);
+    color: var(--noir);
+    margin: 0;
+    min-height: 100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:16px;
+    box-sizing:border-box;
+  }
 
-body{
-  font-family:Segoe UI,Tahoma,sans-serif;
-  background:var(--gris);
-  margin:0; padding:16px;
-  display:flex; flex-direction:column;
-  align-items:center;
-}
+  .banner {
+    background:var(--noir);
+    color:#fff;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:700;
+    margin-bottom:15px;
+    width:100%;
+    max-width:820px;
+    box-sizing:border-box;
+  }
 
-.banner{
-  background:var(--noir);
-  color:#fff;
-  padding:10px;
-  border-radius:10px;
-  max-width:820px;
-  width:100%;
-  text-align:center;
-  font-weight:700;
-  margin-bottom:15px;
-}
+  h1 { color:var(--orange); margin:8px 0; text-align:center; }
+  .subtitle { color:#555; text-align:center; margin-bottom:18px; }
 
-.question{
-  background:#fff;
-  border-left:8px solid var(--orange);
-  padding:16px;
-  border-radius:10px;
-  max-width:820px;
-  width:100%;
-  text-align:center;
-  box-shadow:0 3px 6px rgba(0,0,0,0.1);
-}
+  .question {
+    background:#fff;
+    padding:16px;
+    margin:8px auto;
+    border-left:8px solid var(--orange);
+    border-radius:10px;
+    box-shadow:0 3px 6px rgba(0,0,0,0.08);
+    width:100%;
+    max-width:820px;
+    box-sizing:border-box;
+    text-align:center;
+  }
+  .question p { font-weight:600; margin:8px 0; }
 
-.answers{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin-top:10px;
-}
+  .answers {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    margin-top:6px;
+  }
+  .answers label {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    width:100%;
+    max-width:520px;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    border:1px solid #eee;
+  }
+  .answers input[type="radio"] { transform:scale(1.05); }
 
-.answers label{
-  border:1px solid #ddd;
-  border-radius:6px;
-  padding:8px;
-  cursor:pointer;
-}
+  button {
+    background:var(--orange);
+    color:#fff;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:1rem;
+    cursor:pointer;
+  }
+  button[disabled] { opacity:0.6; cursor:default; }
+  button:hover:not([disabled]) { background:#e65c00; }
 
-button{
-  background:var(--orange);
-  border:none;
-  padding:10px 18px;
-  color:#fff;
-  border-radius:8px;
-  cursor:pointer;
-  margin-top:10px;
-}
-button[disabled]{ opacity:0.6; cursor:default; }
+  .footer { text-align:center; color:#777; margin-top:20px; font-size:0.9rem; }
+
+  @media (max-width:600px) {
+    .question{ padding:14px; max-width:95%; }
+    .answers label{ max-width:100%; }
+    button{ padding:10px 14px; }
+  }
 </style>
 </head>
-
 <body>
 
-<div class="banner" id="quizBanner"></div>
-<h1 style="color:var(--orange)">ÉVALUATION</h1>
-<p id="quizSubtitle">Répondez aux questions tirées au hasard</p>
+<!-- Banniere + titre -->
+<div class="banner" id="quizBanner">🚧 Les travaux de terrassement 🚜</div>
+<h1>ÉVALUATION</h1>
+<p class="subtitle" id="quizSubtitle">Répondez aux questions tirées au hasard</p>
 
-<!-- INTRO -->
-<div id="intro" style="max-width:820px; width:100%;">
-  <div class="question">
+<!-- Écran d'accueil : saisie du nom -->
+<div id="intro" style="width:100%; max-width:820px; display:flex; justify-content:center;">
+  <div class="question" style="text-align:center;">
     <p><strong>Bienvenue</strong></p>
-    <p>Merci d'indiquer votre nom :</p>
-    <input id="candidateName" type="text"
-           placeholder="Nom"
-           style="padding:8px; width:80%; max-width:300px;">
-    <br>
-    <button id="startBtn" disabled>➡️ Suivant</button>
+    <p>Merci d'indiquer votre nom (pas le prénom) avant de commencer :</p>
+    <input id="candidateName" type="text" placeholder="Nom de l'élève"
+           style="padding:8px; width:80%; max-width:320px; border-radius:6px; border:1px solid #ccc;">
+    <div style="margin-top:12px;">
+      <button id="startBtn" disabled>➡️ Suivant</button>
+    </div>
   </div>
 </div>
 
-<!-- QUIZ -->
-<div id="quiz" style="display:none; width:100%; max-width:820px;"></div>
+<!-- Conteneur des questions rendu dynamiquement -->
+<div id="quiz" style="width:100%; max-width:820px; min-height:220px; display:none; align-items:center; justify-content:center;"></div>
 
-<!-- RESTART -->
-<div style="text-align:center; max-width:820px; width:100%;">
+<!-- Zone d'état et bouton 'nouvelle évaluation' -->
+<div style="width:100%; max-width:820px; text-align:center; margin-top:12px;">
   <button id="restartBtn" style="display:none;">🔄 Nouvelle évaluation</button>
-  <div id="saveStatus" style="margin-top:10px;"></div>
+  <div id="saveStatus" style="margin-top:8px; color:#444; font-size:0.95rem;"></div>
 </div>
 
-<script>
-/* ---------------------- CONFIG ---------------------- */
-const QUIZ_NAME = "Les travaux de terrassement";
-const RESULTS_ENDPOINT =
-"https://script.google.com/macros/s/AKfycbzSnnlxH2dCzkVqobrQX-E4n4lo-WcxoDvmLHr7cLn35d4xploO_K3p9tNuY0OweRsW/exec";
+<p id="result" style="text-align:center; font-weight:700; margin-top:14px;"></p>
+<p class="footer">© Formation Sécurité CACES® R482A – Quiz interactif</p>
 
-/* ---------------------- QUESTIONS ---------------------- */
+<script>
+/* ============================ */
+/*         CONFIG              */
+/* ============================ */
+const QUIZ_NAME = "Les travaux de terrassement";
+const RESULTS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzSnnlxH2dCzkVqobrQX-E4n4lo-WcxoDvmLHr7cLn35d4xploO_K3p9tNuY0OweRsW/exec";
+
+/* ============================ */
+/*         QUESTIONS            */
+/* ============================ */
 const allQuestions = [
   {
-    text:"Le conducteur travaille en sous-cavage",
-    answers:["Vrai","Faux"],
-    correct:"Vrai",
-    image:"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
+    "text":"Le conducteur travaille en sous-cavage",
+    "answers":["Vrai","Faux"],
+    "correct":"Vrai",
+    "image":"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
   },
   {
-    text:"Dans cette situation, il peut y avoir ensevelissement de l'engin",
-    answers:["Vrai","Faux"],
-    correct:"Vrai",
-    image:"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
+    "text":"Dans cette situation, il peut y avoir ensevelissement de l'engin",
+    "answers":["Vrai","Faux"],
+    "correct":"Vrai",
+    "image":"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
   },
   {
-    text:"Le conducteur travaille en situation de cavage",
-    answers:["Vrai","Faux"],
-    correct:"Faux",
-    image:"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
+    "text":"Le conducteur travaille en situation de cavage",
+    "answers":["Vrai","Faux"],
+    "correct":"Faux",
+    "image":"https://raw.githubusercontent.com/CETPC-Christophe/09-Les-travaux-de-terrassement/refs/heads/main/images/Souscavage.png"
   }
 ];
 
-/* ---------------------- VARIABLES ---------------------- */
+/* ============================ */
+/*         VARIABLES D'ÉTAT     */
+/* ============================ */
 let selectedQuestions = [];
 let currentIndex = 0;
 let userAnswers = [];
 let candidateName = "";
 
-/* ---------------------- INTRO ---------------------- */
-document.getElementById("quizBanner").textContent = "🚧 " + QUIZ_NAME + " 🚜";
-
-document.getElementById("candidateName").addEventListener("input", () => {
-  document.getElementById("startBtn").disabled =
-    document.getElementById("candidateName").value.trim() === "";
-});
-
-document.getElementById("startBtn").addEventListener("click", startQuiz);
-document.getElementById("restartBtn").addEventListener("click", showIntro);
-
-function showIntro(){
-  document.getElementById("intro").style.display = "block";
-  document.getElementById("quiz").style.display = "none";
-  document.getElementById("restartBtn").style.display = "none";
-  document.getElementById("saveStatus").textContent = "";
+/* ============================ */
+/*         UTILITAIRES          */
+/* ============================ */
+function formatDateTime(isoString) {
+  const date = new Date(isoString);
+  const d = String(date.getDate()).padStart(2,'0');
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const y = date.getFullYear();
+  const hh = String(date.getHours()).padStart(2,'0');
+  const min = String(date.getMinutes()).padStart(2,'0');
+  const sec = String(date.getSeconds()).padStart(2,'0');
+  return `${d}/${m}/${y} ${hh}:${min}:${sec}`;
 }
 
-/* ---------------------- QUIZ ---------------------- */
-function startQuiz(){
-  candidateName = document.getElementById("candidateName").value.trim();
-  if(!candidateName) return;
+function getRandomQuestions(num) {
+  let used = JSON.parse(localStorage.getItem("usedQuestions") || "[]");
+  let available = allQuestions.filter(q => !used.includes(q.text));
+  if (available.length < num) { used=[]; available=[...allQuestions]; }
+  available.sort(() => Math.random() - 0.5);
+  const selected = available.slice(0, num);
+  selected.forEach(q => used.push(q.text));
+  localStorage.setItem("usedQuestions", JSON.stringify(used));
+  return selected;
+}
 
-  selectedQuestions = allQuestions.sort(()=>Math.random()-0.5).slice(0,3);
-  userAnswers = [];
+/* ============================ */
+/*     AFFICHAGE ET NAVIGATION  */
+/* ============================ */
+function showIntro() {
+  document.getElementById('intro').style.display = 'flex';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('restartBtn').style.display = 'none';
+  document.getElementById('result').textContent = '';
+  document.getElementById('saveStatus').textContent = '';
 
+  const nameInput = document.getElementById('candidateName');
+  const startBtn = document.getElementById('startBtn');
+
+  nameInput.value = "";
+  startBtn.disabled = true;
+
+  nameInput.oninput = () => { startBtn.disabled = nameInput.value.trim() === ""; };
+}
+
+function startQuiz() {
+  candidateName = document.getElementById('candidateName').value.trim();
+  if (!candidateName) return;
+
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'flex';
+  document.getElementById('restartBtn').style.display = 'none';
+  document.getElementById('saveStatus').textContent = '';
+
+  selectedQuestions = getRandomQuestions(3);
   currentIndex = 0;
+  userAnswers = new Array(selectedQuestions.length).fill("");
 
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("quiz").style.display = "block";
-
+  document.getElementById('quizSubtitle').textContent = `Répondez à ${selectedQuestions.length} questions tirées au hasard`;
   renderQuestion();
 }
 
-function renderQuestion(){
+function renderQuestion() {
   const q = selectedQuestions[currentIndex];
 
-  const answersHTML = q.answers.map((ans, i)=>`
-    <label>
-      <input type="radio" name="q" value="${ans}">
-      ${ans}
-    </label>
-  `).join("");
+  // Construire le HTML des réponses
+  const optionsHtml = q.answers.map((a, idx) => {
+    const inputId = `q${currentIndex}_opt${idx}`;
+    return `<label for="${inputId}">
+              <input id="${inputId}" type="radio" name="q" value="${a}"> ${a}
+            </label>`;
+  }).join("");
 
-  document.getElementById("quiz").innerHTML = `
+  // Affichage question + image
+  document.getElementById('quiz').innerHTML = `
     <div class="question">
-      ${q.image ? `<img src="${q.image}" style="max-width:100%; border-radius:6px;">` : ""}
-      <p><strong>Question ${currentIndex+1} :</strong> ${q.text}</p>
-      <div class="answers">${answersHTML}</div>
-      <button id="nextBtn" disabled>
-        ${currentIndex === selectedQuestions.length-1 ? "🏁 Terminer" : "➡️ Suivant"}
-      </button>
+      ${q.image ? `<img src="${q.image}" alt="Illustration question" style="max-width:100%; height:auto; margin-bottom:10px; border-radius:6px;">` : ''}
+      <p>⚙️ <strong>Question ${currentIndex + 1} :</strong> ${q.text}</p>
+      <div class="answers">${optionsHtml}</div>
+      <div style="margin-top:15px; text-align:center;">
+        <button id="nextBtnInternal" disabled>
+          ${(currentIndex === selectedQuestions.length - 1) ? "🏁 Terminer" : "➡️ Suivant"}
+        </button>
+      </div>
     </div>
   `;
 
-  const nextBtn = document.getElementById("nextBtn");
+  const nextBtn = document.getElementById('nextBtnInternal');
 
-  document.querySelectorAll('input[name="q"]').forEach(r => {
-    r.addEventListener("change", () => nextBtn.disabled = false);
+  // Activer le bouton après sélection
+  document.querySelectorAll('input[name="q"]').forEach(radio => {
+    radio.addEventListener('change', () => { nextBtn.disabled = false; });
   });
 
-  nextBtn.addEventListener("click", ()=>{
-    const val = document.querySelector('input[name="q"]:checked').value;
-    userAnswers[currentIndex] = val;
+  // Clic sur le bouton : enregistrer la réponse et passer à la suite
+  nextBtn.addEventListener('click', () => {
+    const selected = document.querySelector('input[name="q"]:checked');
+    if (!selected) return;
 
-    if(currentIndex < selectedQuestions.length-1){
+    userAnswers[currentIndex] = selected.value;
+
+    if (currentIndex < selectedQuestions.length - 1) {
       currentIndex++;
       renderQuestion();
     } else {
@@ -203,52 +273,65 @@ function renderQuestion(){
   });
 }
 
-/* ---------------------- RESULTATS ---------------------- */
-function showResults(){
-  document.getElementById("quiz").innerHTML = "<div class='question'>⚙️ Vérification de vos réponses...</div>";
-  sendResults().finally(()=>{
-
-    const score = userAnswers.filter((v,i)=>v===selectedQuestions[i].correct).length;
-    const now = new Date().toLocaleString();
-
-    document.getElementById("quiz").innerHTML = `
-      <div class="question">
-        <p>Candidat : <strong>${candidateName}</strong></p>
-        <p>Résultat : <strong>${score}/${selectedQuestions.length}</strong></p>
-        <p>${now}</p>
-      </div>
-    `;
-
-    document.getElementById("restartBtn").style.display = "inline-block";
+/* ============================ */
+/*        AFFICHAGE RESULTATS    */
+/* ============================ */
+function buildResultObject() {
+  const now = new Date();
+  let score = 0;
+  const details = selectedQuestions.map((q,i) => {
+    const given = userAnswers[i] || "";
+    if(given === q.correct) score++;
+    return { question:q.text, given, correct:q.correct };
   });
+  return { timestamp: now.toISOString(), candidate:candidateName, score, total:selectedQuestions.length, details, quiz:QUIZ_NAME };
 }
 
-function sendResults(){
-  const payload = {
-    timestamp: new Date().toISOString(),
-    candidate: candidateName,
-    score: userAnswers.filter((v,i)=>v===selectedQuestions[i].correct).length,
-    total: selectedQuestions.length,
-    answers: userAnswers,
-    quiz: QUIZ_NAME
-  };
+function sendResults() {
+  const payload = buildResultObject();
+  const statusEl = document.getElementById('saveStatus');
+  if (!RESULTS_ENDPOINT) { statusEl.textContent="Aucun endpoint configuré."; return; }
 
-  document.getElementById("saveStatus").textContent = "";
-
-  return fetch(RESULTS_ENDPOINT,{
-    method:"POST",
-    mode:"no-cors",
+  statusEl.textContent = "Envoi en cours...";
+  fetch(RESULTS_ENDPOINT, {
+    method:"POST", mode:"no-cors",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify(payload)
-  }).then(()=>{
-    document.getElementById("saveStatus").textContent = "Envoi réussi ✔️";
-  }).catch(()=>{
-    document.getElementById("saveStatus").textContent = "Erreur d’envoi ⚠️";
-  });
+  }).then(()=>{ statusEl.textContent="Envoi réussi ✔️"; })
+    .catch(err=>{ statusEl.textContent="Erreur: "+err.message; });
 }
-</script>
 
+function showResults() {
+  document.getElementById('quiz').innerHTML = `<div class="question"><p>⚙️ Vérification de vos réponses...</p></div>`;
+  document.getElementById('saveStatus').textContent = '';
+  sendResults();
+  const score = userAnswers.filter((a,i)=>a===selectedQuestions[i].correct).length;
+  const timestamp = formatDateTime(new Date().toISOString());
+
+  document.getElementById('quiz').innerHTML = `
+    <div class="question">
+      <p>🏷️ Candidat : <strong>${candidateName}</strong></p>
+      <p>🏁 Résultat : <span style="color:var(--orange); font-weight:700;">${score}</span> / ${selectedQuestions.length}</p>
+      <p>⏱️ Réalisé le : <strong>${timestamp}</strong></p>
+    </div>
+  `;
+  document.getElementById('restartBtn').style.display='inline-block';
+}
+
+/* ============================ */
+/*        REDÉMARRER            */
+/* ============================ */
+function restartQuiz() { showIntro(); }
+
+/* ============================ */
+/*      INITIALISATION          */
+/* ============================ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('quizBanner').textContent = `🚧 ${QUIZ_NAME} 🚜`;
+  document.getElementById('startBtn').addEventListener('click', startQuiz);
+  document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+  showIntro();
+});
+</script>
 </body>
 </html>
-
-
